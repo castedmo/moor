@@ -2,5 +2,10 @@
 
 namespace moor
 {
-  class 
+  class Compressor
+  {
+  public:
+    Compressor();
+    ~Compressor();
+  } 
 }
