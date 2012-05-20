@@ -1,5 +1,6 @@
 #pragma once
 
+
 namespace moor
 {
   class Compressor
@@ -7,5 +8,5 @@ namespace moor
   public:
     Compressor();
     ~Compressor();
-  } 
+  }; 
 }
