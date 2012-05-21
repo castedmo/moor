@@ -13,8 +13,8 @@ namespace moor
     Compressor();
     ~Compressor();
     
-    AddFile (const std::string& _file_path);
-    Close();
+    void AddFile (const std::string& _file_path);
+    void Close();
   
   private:
     bool m_open;
