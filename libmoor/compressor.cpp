@@ -5,8 +5,9 @@
 
 using namespace moor;
 
-Compressor::Compressor()
+Compressor::Compressor(const Formats& _format, const Compressions& _compression)
   : m_open (true), m_archive (archive_write_new()), m_entry (archive_entry_new())
+  , m_format(_format), m_compression(_compression)
 {  
 }
 
