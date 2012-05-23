@@ -3,6 +3,13 @@ SET (libmoor_SOURCES
 )
 
 ADD_LIBRARY (moor SHARED ${libmoor_SOURCES})
+
+IF(MSVC)
+    set(CMAKE_DEBUG_POSTFIX "d")
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
+ENDIF()
+
 SET(ADDITIONAL_LIBS "")
 
 FIND_PACKAGE(LibArchive)
