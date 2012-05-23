@@ -9,11 +9,11 @@ struct archive_entry;
 
 namespace moor
 {
-  class Compressor
+  class ArchiveWriter
   {
   public:
-    Compressor(const Formats& _format, const Compressions& _compression);
-    ~Compressor();
+    ArchiveWriter(const Formats& _format, const Compressions& _compression);
+    ~ArchiveWriter();
     
     void AddFile (const std::string& _file_path);
     void Close();

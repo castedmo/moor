@@ -1,5 +1,5 @@
 SET (libmoor_SOURCES
-  compressor.cpp
+  archive_writer.cpp
 )
 
 ADD_LIBRARY (moor SHARED ${libmoor_SOURCES})

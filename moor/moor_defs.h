@@ -4,16 +4,16 @@ namespace moor
 {
   enum Formats
   {
-    Format_pax = 1,
-    Format_tar = 2,
-    Format_ZIP = 3,
-    Format_7Zip = 4
+    Format_pax = 0,
+    Format_tar = 1,
+    Format_ZIP = 2,
+    Format_7Zip = 3
   };
   
   enum Compressions
   {
-    Compression_gzip = 1,
-    Compression_bzip2 = 2,
-    Compression_lzma = 3
+    Compression_gzip = 0,
+    Compression_bzip2 = 1,
+    Compression_lzma = 2
   };
 }
