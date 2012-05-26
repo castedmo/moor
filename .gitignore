@@ -1,7 +1,10 @@
-*.*~
+﻿*.*~
 *.o
 *.so
 *.cmake
 Makefile
 CMakeCache.txt
+*.sln
+*.vcxproj
+
 
