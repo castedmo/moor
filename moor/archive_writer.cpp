@@ -18,6 +18,8 @@ int (*format_tab[])(archive*) = {archive_write_set_format_pax_restricted, archiv
 int (*compression_tab[])(archive*) = {archive_write_set_compression_gzip, archive_write_set_compression_bzip2, 
                                       archive_write_set_compression_lzma};
 
+int archive_file_type[] = {AE_IFREG, AE_IFDIR};
+
 
 void ArchiveWriter::checkError(const int _err_code, const bool _close_before_throw)
 {
@@ -47,40 +49,48 @@ ArchiveWriter::~ArchiveWriter()
 void ArchiveWriter::addHeader(const std::string& _entry_name, const FileTypes _entry_type,
                               const unsigned int _size, const int _permission)
 {
-    m_entry = archive_entry_clear(m_entry);
-    archive_entry_set_perm(m_entry, perm);    
-
+  m_entry = archive_entry_clear(m_entry);
+  archive_entry_set_pathname(m_entry, _entry_name.c_str());
+  archive_entry_set_perm(m_entry, _permission);
+  archive_entry_set_filetype(m_entry, archive_file_type[_entry_type]);
+  archive_entry_set_size(m_entry, _size);
+  checkError(archive_write_header(m_archive, m_entry));
 }
 
-void addHeader(const std::string& _file_path)
+void ArchiveWriter::addHeader(const std::string& _file_path)
 {
+}
+
+void ArchiveWriter::addContent(const char _byte)
+{
+  archive_write_data(m_archive, &_byte, 1);
+}
+
+void ArchiveWriter::addFinish()
+{
+  archive_write_finish_entry(m_archive);
 }
 
 void ArchiveWriter::AddFile (const std::string& _file_path)
 {
   if (boost::filesystem::exists(_file_path))
   {
-    m_entry = archive_entry_clear(m_entry);
-    archive_entry_set_pathname(m_entry, _file_path.c_str());
+    boost::filesystem::file_status file_stat = boost::filesystem::status(_file_path);
+    boost::filesystem::perms perm = file_stat.permissions();
+    long long file_size = boost::filesystem::file_size(_file_path);
+
+    if (file_stat.type() == boost::filesystem::directory_file)
+      addHeader(_file_path, FileType_Directory, perm);
+    else if (file_stat.type() == boost::filesystem::regular_file)
+      addHeader(_file_path, FileType_Regular, perm, file_size);
+
     struct stat native_stat;
     stat(_file_path.c_str(), &native_stat);
     archive_entry_copy_stat(m_entry, &native_stat);
     
-    boost::filesystem::file_status stat = boost::filesystem::status(_file_path);
-    boost::filesystem::perms perm = stat.permissions();
-    archive_entry_set_perm(m_entry, perm);    
-    
-    if (stat.type() == boost::filesystem::directory_file)
+
+    if (file_stat.type() == boost::filesystem::regular_file)
     {
-      archive_entry_set_filetype(m_entry, AE_IFDIR);      
-      checkError(archive_write_header(m_archive, m_entry));
-    }
-    else if (stat.type() == boost::filesystem::regular_file)
-    {
-      archive_entry_set_filetype(m_entry, AE_IFREG);
-      archive_entry_set_size(m_entry, boost::filesystem::file_size(_file_path));      
-      checkError(archive_write_header(m_archive, m_entry));
-      
       std::fstream entry_file(_file_path.c_str(), std::ios::in);
       char buff[8192];
       while (entry_file.good())
@@ -93,7 +103,7 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
     else
       throw std::runtime_error("Entry file type not yet supported.");
       
-    archive_write_finish_entry(m_archive);
+    addFinish();
   }
   else
     throw std::runtime_error("Entry file not found.");
@@ -101,24 +111,10 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
 
 void ArchiveWriter::AddDirectory(const std::string& _directory_name)
 {
-  m_entry = archive_entry_clear(m_entry);
-  archive_entry_set_pathname(m_entry, _directory_name.c_str());
-  archive_entry_set_filetype(m_entry, AE_IFDIR);
-  checkError(archive_write_header(m_archive, m_entry));
-  archive_write_finish_entry(m_archive);  
+  addHeader(_directory_name, FileType_Directory, 0777);
+  addFinish();
 }
 
-//template <class Iter>
-void ArchiveWriter::AddFile (const Iter _entry_contents_begin, const Iter _entry_contents_end, const std::string& _entry_name);
-{
-  m_entry = archive_entry_clear(m_entry);
-  archive_entry_set_pathname(m_entry, _entry_name.c_str());
-  archive_entry_set_filetype(m_entry, AE_IFREG);
-  archive_entry_set_size(m_entry, _entry_content.size());      
-  checkError(archive_write_header(m_archive, m_entry));
-  for (auto it = _entry_content
-  archive_write_finish_entry(m_archive);  
-}
 
 void ArchiveWriter::Close()
 {
