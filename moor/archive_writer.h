@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "moor_build_config.h"
 #include "moor_defs.h"
 
 struct archive;
@@ -9,7 +10,7 @@ struct archive_entry;
 
 namespace moor
 {
-  class ArchiveWriter
+  class MOOR_API ArchiveWriter
   {
   public:
     ArchiveWriter(const std::string& _archive_file_name, const Formats& _format, const Compressions& _compression);
