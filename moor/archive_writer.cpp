@@ -1,4 +1,4 @@
-#include "archive_writer.h"
+#include "archive_writer.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -44,6 +44,18 @@ ArchiveWriter::~ArchiveWriter()
   Close();
 }
 
+void ArchiveWriter::addHeader(const std::string& _entry_name, const FileTypes _entry_type,
+                              const unsigned int _size, const int _permission)
+{
+    m_entry = archive_entry_clear(m_entry);
+    archive_entry_set_perm(m_entry, perm);    
+
+}
+
+void addHeader(const std::string& _file_path)
+{
+}
+
 void ArchiveWriter::AddFile (const std::string& _file_path)
 {
   if (boost::filesystem::exists(_file_path))
@@ -85,6 +97,27 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
   }
   else
     throw std::runtime_error("Entry file not found.");
+}
+
+void ArchiveWriter::AddDirectory(const std::string& _directory_name)
+{
+  m_entry = archive_entry_clear(m_entry);
+  archive_entry_set_pathname(m_entry, _directory_name.c_str());
+  archive_entry_set_filetype(m_entry, AE_IFDIR);
+  checkError(archive_write_header(m_archive, m_entry));
+  archive_write_finish_entry(m_archive);  
+}
+
+//template <class Iter>
+void ArchiveWriter::AddFile (const Iter _entry_contents_begin, const Iter _entry_contents_end, const std::string& _entry_name);
+{
+  m_entry = archive_entry_clear(m_entry);
+  archive_entry_set_pathname(m_entry, _entry_name.c_str());
+  archive_entry_set_filetype(m_entry, AE_IFREG);
+  archive_entry_set_size(m_entry, _entry_content.size());      
+  checkError(archive_write_header(m_archive, m_entry));
+  for (auto it = _entry_content
+  archive_write_finish_entry(m_archive);  
 }
 
 void ArchiveWriter::Close()

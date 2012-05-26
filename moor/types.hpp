@@ -16,4 +16,10 @@ namespace moor
     Compression_bzip2 = 1,
     Compression_lzma = 2
   };
+
+  enum FileTypes
+  {
+    FileType_Regular = 0,
+    FileType_Directory = 1
+  };
 }

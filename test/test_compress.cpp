@@ -1,4 +1,4 @@
-#include <moor/archive_writer.h>
+#include <moor/archive_writer.hpp>
 
 using namespace moor;
 
