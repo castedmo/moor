@@ -74,7 +74,7 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
       while (entry_file.good())
       {
         entry_file.read(buff, 8192);
-        archive_write_data(m_archive, buff, entry_file.gcount());
+        archive_write_data(m_archive, buff, static_cast<size_t>(entry_file.gcount()));
       }
       entry_file.close();
     }
