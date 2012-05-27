@@ -47,18 +47,33 @@ ArchiveWriter::~ArchiveWriter()
 }
 
 void ArchiveWriter::addHeader(const std::string& _entry_name, const FileTypes _entry_type,
-                              const unsigned int _size, const int _permission)
+                              const long long _size, const int _permission, const bool _use_native_stat)
 {
   m_entry = archive_entry_clear(m_entry);
   archive_entry_set_pathname(m_entry, _entry_name.c_str());
   archive_entry_set_perm(m_entry, _permission);
   archive_entry_set_filetype(m_entry, archive_file_type[_entry_type]);
   archive_entry_set_size(m_entry, _size);
+
+  if (_use_native_stat)
+  {
+    struct stat native_stat;
+    stat(_entry_name.c_str(), &native_stat);
+    archive_entry_copy_stat(m_entry, &native_stat);
+  }
+
   checkError(archive_write_header(m_archive, m_entry));
 }
 
 void ArchiveWriter::addHeader(const std::string& _file_path)
 {
+  archive a = archive_read_disk_new();
+  m_entry = archive_entry_clear(m_entry);
+  archive_entry_set_pathname(m_entry, _file_path.c_str());
+  archive_read_disk_entry_from_file(a, m_entry);
+  checkError(archive_write_header(m_archive, m_entry));  
+  archive_read_close(a);
+  archive_read_free(a);
 }
 
 void ArchiveWriter::addContent(const char _byte)
@@ -80,13 +95,9 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
     long long file_size = boost::filesystem::file_size(_file_path);
 
     if (file_stat.type() == boost::filesystem::directory_file)
-      addHeader(_file_path, FileType_Directory, perm);
+      addHeader(_file_path, FileType_Directory, perm, 0, true);
     else if (file_stat.type() == boost::filesystem::regular_file)
-      addHeader(_file_path, FileType_Regular, perm, file_size);
-
-    struct stat native_stat;
-    stat(_file_path.c_str(), &native_stat);
-    archive_entry_copy_stat(m_entry, &native_stat);
+      addHeader(_file_path, FileType_Regular, perm, file_size, true);
     
 
     if (file_stat.type() == boost::filesystem::regular_file)
@@ -114,7 +125,6 @@ void ArchiveWriter::AddDirectory(const std::string& _directory_name)
   addHeader(_directory_name, FileType_Directory, 0777);
   addFinish();
 }
-
 
 void ArchiveWriter::Close()
 {
