@@ -6,4 +6,5 @@ Makefile
 CMakeCache.txt
 *.sln
 *.vcxproj
-cmaked
+cmaked/
+release/
