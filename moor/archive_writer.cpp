@@ -4,6 +4,7 @@
 #include <archive_entry.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/scope_exit.hpp>
 
 #include <stdexcept>
 #include <fstream>
@@ -67,13 +68,18 @@ void ArchiveWriter::addHeader(const std::string& _entry_name, const FileTypes _e
 
 void ArchiveWriter::addHeader(const std::string& _file_path)
 {
-  archive a = archive_read_disk_new();
+  struct archive* a = archive_read_disk_new();
+  BOOST_SCOPE_EXIT ( (&a) )
+  {
+    archive_read_close(a);
+    archive_read_free(a);
+  }
+  BOOST_SCOPE_EXIT_END
+
   m_entry = archive_entry_clear(m_entry);
   archive_entry_set_pathname(m_entry, _file_path.c_str());
-  archive_read_disk_entry_from_file(a, m_entry);
+  archive_read_disk_entry_from_file(a, m_entry, 0, 0);
   checkError(archive_write_header(m_archive, m_entry));  
-  archive_read_close(a);
-  archive_read_free(a);
 }
 
 void ArchiveWriter::addContent(const char _byte)
@@ -94,11 +100,11 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
     boost::filesystem::perms perm = file_stat.permissions();
     long long file_size = boost::filesystem::file_size(_file_path);
 
-    if (file_stat.type() == boost::filesystem::directory_file)
+    /*if (file_stat.type() == boost::filesystem::directory_file)
       addHeader(_file_path, FileType_Directory, perm, 0, true);
     else if (file_stat.type() == boost::filesystem::regular_file)
-      addHeader(_file_path, FileType_Regular, perm, file_size, true);
-    
+      addHeader(_file_path, FileType_Regular, perm, file_size, true);*/
+    addHeader(_file_path);
 
     if (file_stat.type() == boost::filesystem::regular_file)
     {

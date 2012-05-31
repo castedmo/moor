@@ -1,6 +1,7 @@
 ﻿*.*~
 *.o
 *.so
+*.swp
 *.cmake
 Makefile
 CMakeCache.txt
