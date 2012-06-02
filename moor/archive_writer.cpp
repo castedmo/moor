@@ -1,4 +1,5 @@
 #include "archive_writer.hpp"
+#include "memory_writer_callback.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -21,7 +22,6 @@ int (*compression_tab[])(archive*) = {archive_write_set_compression_gzip, archiv
 
 int archive_file_type[] = {AE_IFREG, AE_IFDIR};
 
-
 void ArchiveWriter::checkError(const int _err_code, const bool _close_before_throw)
 {
   if (_close_before_throw && _err_code == ARCHIVE_FATAL)
@@ -33,7 +33,7 @@ void ArchiveWriter::checkError(const int _err_code, const bool _close_before_thr
 
 ArchiveWriter::ArchiveWriter(const std::string& _archive_file_name, const Formats& _format, const Compressions& _compression)
   : m_open (true), m_archive (archive_write_new()), m_entry (archive_entry_new())
-  , m_archive_file_name (_archive_file_name), m_format(_format), m_compression(_compression)
+  , m_archive_file_name (_archive_file_name), m_out_buffer (NULL), m_format(_format), m_compression(_compression)
 {  
   //set archive format
   checkError((format_tab[m_format](m_archive)), true);    
@@ -42,27 +42,30 @@ ArchiveWriter::ArchiveWriter(const std::string& _archive_file_name, const Format
   checkError(archive_write_open_filename(m_archive, m_archive_file_name.c_str()), true);
 }
 
+ArchiveWriter::ArchiveWriter(std::list<unsigned char>& _out_buffer, const Formats& _format, const Compressions& _compression)
+  : m_open(true), m_archive(archive_write_new()), m_entry (archive_entry_new())
+  , m_archive_file_name (""), m_out_buffer (&_out_buffer), m_format(_format), m_compression(_compression)
+{
+  //set archive format
+  checkError((format_tab[m_format](m_archive)), true);    
+  //set archive compression
+  checkError((compression_tab[m_compression](m_archive)), true);  
+  checkError(write_open_memory(m_archive, m_out_buffer), true);
+}
+
 ArchiveWriter::~ArchiveWriter()
 {
   Close();
 }
 
 void ArchiveWriter::addHeader(const std::string& _entry_name, const FileTypes _entry_type,
-                              const long long _size, const int _permission, const bool _use_native_stat)
+                              const long long _size, const int _permission)
 {
   m_entry = archive_entry_clear(m_entry);
   archive_entry_set_pathname(m_entry, _entry_name.c_str());
   archive_entry_set_perm(m_entry, _permission);
   archive_entry_set_filetype(m_entry, archive_file_type[_entry_type]);
   archive_entry_set_size(m_entry, _size);
-
-  if (_use_native_stat)
-  {
-    struct stat native_stat;
-    stat(_entry_name.c_str(), &native_stat);
-    archive_entry_copy_stat(m_entry, &native_stat);
-  }
-
   checkError(archive_write_header(m_archive, m_entry));
 }
 
@@ -71,8 +74,11 @@ void ArchiveWriter::addHeader(const std::string& _file_path)
   struct archive* a = archive_read_disk_new();
   BOOST_SCOPE_EXIT ( (&a) )
   {
-    archive_read_close(a);
-    archive_read_free(a);
+    if(a != NULL)
+    {
+      archive_read_close(a);
+      archive_read_free(a);
+    }
   }
   BOOST_SCOPE_EXIT_END
 
@@ -100,10 +106,6 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
     boost::filesystem::perms perm = file_stat.permissions();
     long long file_size = boost::filesystem::file_size(_file_path);
 
-    /*if (file_stat.type() == boost::filesystem::directory_file)
-      addHeader(_file_path, FileType_Directory, perm, 0, true);
-    else if (file_stat.type() == boost::filesystem::regular_file)
-      addHeader(_file_path, FileType_Regular, perm, file_size, true);*/
     addHeader(_file_path);
 
     if (file_stat.type() == boost::filesystem::regular_file)

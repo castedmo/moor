@@ -2,11 +2,14 @@
 #include <list>
 #include <vector>
 #include <iostream>
+#include <fstream>
 using namespace moor;
 
 int main()
 {
-  ArchiveWriter compressor("test1.tar.gz", Format_pax, Compression_gzip);
+  std::list<unsigned char> lout;
+  //ArchiveWriter compressor("test1.tar.gz", Format_pax, Compression_gzip);
+  ArchiveWriter compressor(lout, Format_pax, Compression_gzip);
   //compressor.AddFile("ttt1");
   //compressor.AddFile("ttt/test_compress");
   compressor.AddFile("test_compress");
@@ -18,6 +21,13 @@ int main()
   compressor.AddFile("arary", a, a+10);
   compressor.AddFile("list", l.begin(), l.end());
   compressor.AddFile("vector", v.begin(), v.end());
+  
+
+  compressor.Close();
+  std::ofstream of("test2.tar.gz");
+  for (auto a = lout.begin(); a != lout.end(); a++)
+    of.write((char*)&*a, 1);
+  of.close();
 
   return 0;
 }

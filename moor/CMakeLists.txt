@@ -1,5 +1,6 @@
 SET (libmoor_SOURCES
   archive_writer.cpp
+  memory_writer_callback.cpp
 )
 
 ADD_LIBRARY (moor SHARED ${libmoor_SOURCES})

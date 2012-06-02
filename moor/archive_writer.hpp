@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iterator>
+#include <list>
 
 #include "moor_build_config.h"
 #include "types.hpp"
@@ -16,6 +17,7 @@ namespace moor
   public:
     ArchiveWriter(const std::string& _archive_file_name, const Formats& _format,
                   const Compressions& _compression);
+    ArchiveWriter(std::list<unsigned char>& _out_buffer, const Formats& _format, const Compressions& _compression);
     ~ArchiveWriter();
     
     void AddFile (const std::string& _file_path);
@@ -28,7 +30,7 @@ namespace moor
   private:
     void checkError(const int _err_code, const bool _close_before_throw = false);
     void addHeader(const std::string& _entry_name, const FileTypes _entry_type,
-                   const long long _size = 0, const int _permission = 0644, const bool _use_native_stat = false);
+                   const long long _size = 0, const int _permission = 0644);
     void addHeader(const std::string& _file_path);
     void addContent(const char _byte);
     void addFinish();
@@ -38,6 +40,7 @@ namespace moor
     archive_entry* m_entry;    
     
     const std::string& m_archive_file_name;
+    std::list<unsigned char>* m_out_buffer;
     const Formats m_format;
     const Compressions m_compression;
   };
