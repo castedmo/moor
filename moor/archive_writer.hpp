@@ -4,7 +4,7 @@
 #include <iterator>
 #include <list>
 
-#include "moor_build_config.h"
+#include "moor_build_config.hpp"
 #include "types.hpp"
 
 struct archive;
