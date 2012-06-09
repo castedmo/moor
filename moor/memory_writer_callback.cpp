@@ -2,6 +2,7 @@
 
 #include <archive.h>
 #include <stdexcept>
+#include <iterator>
 
 using namespace moor;
 

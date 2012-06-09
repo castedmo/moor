@@ -39,7 +39,7 @@ namespace moor
     archive* m_archive;
     archive_entry* m_entry;    
     
-    const std::string& m_archive_file_name;
+    const std::string m_archive_file_name;
     std::list<unsigned char>* m_out_buffer;
     const Formats m_format;
     const Compressions m_compression;
