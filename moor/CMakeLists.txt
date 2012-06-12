@@ -3,13 +3,13 @@ SET (libmoor_SOURCES
   memory_writer_callback.cpp
 )
 
-ADD_LIBRARY (moor SHARED ${libmoor_SOURCES})
-
 IF(MSVC)
-    set(CMAKE_DEBUG_POSTFIX "d")
+    set(CMAKE_DEBUG_POSTFIX d)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
 ENDIF()
+
+ADD_LIBRARY (moor SHARED ${libmoor_SOURCES})
 
 SET(ADDITIONAL_LIBS "")
 
@@ -17,7 +17,11 @@ FIND_PACKAGE(LibArchive)
 INCLUDE_DIRECTORIES(${LibArchive_INCLUDE_DIR})
 LIST(APPEND ADDITIONAL_LIBS ${LibArchive_LIBRARIES})
 
-FIND_PACKAGE(Boost COMPONENTS filesystem)
+set(Boost_USE_STATIC_LIBS ON)
+FIND_PACKAGE(Boost COMPONENTS filesystem system)
+IF (NOT Boost_FOUND)
+  SET(BOOST_ROOT "" CACHE FILEPATH "Boost root directory" FORCE)
+ENDIF (NOT Boost_FOUND)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 LIST(APPEND ADDITIONAL_LIBS ${Boost_LIBRARIES})
 
