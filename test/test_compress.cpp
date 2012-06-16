@@ -24,9 +24,9 @@ int main()
   
 
   compressor.Close();
-  std::ofstream of("test2.tar.gz");
+  std::ofstream of("test2.tar.gz", std::ios::binary);
   for (auto a = lout.begin(); a != lout.end(); a++)
-    of.write((char*)&*a, 1);
+    of << *a;
   of.close();
 
   return 0;
