@@ -84,7 +84,7 @@ void ArchiveWriter::addHeader(const std::string& _file_path)
 
   m_entry = archive_entry_clear(m_entry);
   archive_entry_set_pathname(m_entry, _file_path.c_str());
-  archive_read_disk_entry_from_file(a, m_entry, 0, 0);
+  checkError(archive_read_disk_entry_from_file(a, m_entry, -1, 0));
   checkError(archive_write_header(m_archive, m_entry));  
 }
 
