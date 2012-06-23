@@ -11,3 +11,5 @@ It's even harder when you need to compress on memory.
 This project is a wrapper for 
 [LibArchive](http://libarchive.github.com/)
 library.
+
+Currently only *compression* part is implemented
