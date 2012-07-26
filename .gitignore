@@ -9,3 +9,4 @@ CMakeCache.txt
 *.vcxproj
 cmaked/
 release/
+*.user
