@@ -80,7 +80,7 @@ void ArchiveWriter::addHeader(const std::string& _entry_name
 void ArchiveWriter::addHeader(const std::string& _file_path)
 {
   struct archive* a = archive_read_disk_new();
-  BOOST_SCOPE_EXIT ( (&a) )
+  BOOST_SCOPE_EXIT (&a)
   {
     if(a != NULL)
     {
