@@ -6,7 +6,7 @@
 
 using namespace moor;
 
-struct write_memory_data 
+struct write_memory_data
 {
   //size_t used;
   //size_t size;
@@ -16,20 +16,22 @@ struct write_memory_data
 
 static int moor_memory_write_close(struct archive *, void *);
 static int moor_memory_write_open(struct archive *, void *);
-static ssize_t moor_memory_write(struct archive *, void *, const void *buff, size_t);
+static ssize_t moor_memory_write(struct archive *, void *, const void *buff
+  , size_t);
 
 int moor::write_open_memory(struct archive *a, std::list<unsigned char> * _buff)
 {
   struct write_memory_data *mine = new write_memory_data;
 
   //mine = (struct write_memory_data *)malloc(sizeof(*mine));
-  if (mine == NULL) 
+  if (mine == NULL)
     throw std::runtime_error("no memory");
 
   mine->buff = _buff;
   //mine->size = buffSize;
   //mine->client_size = used;
-  return (archive_write_open(a, mine, moor_memory_write_open, moor_memory_write, moor_memory_write_close));
+  return (archive_write_open(a, mine, moor_memory_write_open, moor_memory_write
+    , moor_memory_write_close));
 }
 
 int moor_memory_write_open(struct archive *a, void *client_data)
@@ -45,12 +47,13 @@ int moor_memory_write_open(struct archive *a, void *client_data)
   return (ARCHIVE_OK);
 }
 
-ssize_t moor_memory_write(struct archive *a, void *client_data, const void *buff, size_t length)
+ssize_t moor_memory_write(struct archive *a, void *client_data, const void *buff
+  , size_t length)
 {
   struct write_memory_data *mine;
   mine = (write_memory_data*)client_data;
 
-  /*if (mine->used + length > mine->size) 
+  /*if (mine->used + length > mine->size)
   {
     archive_set_error(a, ENOMEM, "Buffer exhausted");
     return (ARCHIVE_FATAL);
@@ -59,7 +62,8 @@ ssize_t moor_memory_write(struct archive *a, void *client_data, const void *buff
   mine->used += length;
   if (mine->client_size != NULL)
     *mine->client_size = mine->used;*/
-  std::copy((unsigned char*)buff, (unsigned char*)buff + length, std::back_inserter(*(mine->buff)));
+  std::copy((unsigned char*)buff, (unsigned char*)buff + length
+    , std::back_inserter(*(mine->buff)));
   return (length);
 }
 
