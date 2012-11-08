@@ -103,7 +103,7 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
 
   archive_entry_set_pathname(entry,
       (boost::filesystem::path(_root_path) /
-      archive_entry_pathname(entry)).c_str());
+      archive_entry_pathname(entry)).string().c_str());
   checkError(archive_write_header(a, entry));
   if (archive_entry_size(entry) > 0)
     checkError(copy_data(m_archive, a));
