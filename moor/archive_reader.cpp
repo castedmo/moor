@@ -55,7 +55,7 @@ int copy_data(struct archive *ar, struct archive *aw)
   int r;
   const void *buff;
   size_t size;
-  off_t offset;
+  __LA_INT64_T offset;
 
   for (;;)
   {
@@ -113,7 +113,7 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
 
 std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
 {
-  auto result = std::make_pair("", std::list<unsigned char>());
+  auto result = std::make_pair(std::string(""), std::list<unsigned char>());
 
   struct archive_entry* entry;
   auto r = archive_read_next_header(m_archive, &entry);
