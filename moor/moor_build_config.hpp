@@ -7,5 +7,5 @@
 #elif defined (__GNUC__)
   #define MOOR_API __attribute__ ((__visibility__("default")))
 #else
-  #defined MOOR_API
+  #define MOOR_API
 #endif
