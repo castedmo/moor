@@ -30,7 +30,6 @@ namespace moor
     void close();
 
     archive* m_archive;
-    archive_entry* m_entry;
     bool m_open;
 
     const std::string m_archive_file_name;

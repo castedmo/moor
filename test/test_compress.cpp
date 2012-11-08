@@ -1,4 +1,5 @@
 #include <moor/archive_writer.hpp>
+#include <moor/archive_reader.hpp>
 #include <list>
 #include <vector>
 #include <iostream>
@@ -21,13 +22,18 @@ int main()
   compressor.AddFile("arary", a, a+10);
   compressor.AddFile("list", l.begin(), l.end());
   compressor.AddFile("vector", v.begin(), v.end());
-  
+
 
   compressor.Close();
   std::ofstream of("test2.tar.gz", std::ios::binary);
   for (auto a = lout.begin(); a != lout.end(); a++)
     of << *a;
   of.close();
+
+  ArchiveReader reader("test2.tar.gz");
+  bool has_data = true;
+  while (has_data)
+      has_data = reader.ExtractNext("extract");
 
   return 0;
 }

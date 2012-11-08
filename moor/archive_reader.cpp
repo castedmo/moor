@@ -79,26 +79,32 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
   struct archive* a = archive_write_disk_new();
   archive_write_disk_set_options(a, flags);
   archive_write_disk_set_standard_lookup(a);
-  BOOST_SCOPE_EXIT (&a)
+
+  struct archive_entry* entry;
+  auto r = archive_read_next_header(m_archive, &entry);
+  BOOST_SCOPE_EXIT (&a, &entry)
   {
     if(a != NULL)
     {
+      archive_write_finish_entry(a);
       archive_write_close(a);
       archive_write_free(a);
     }
   }
   BOOST_SCOPE_EXIT_END
-  struct archive_entry* entry;
-  auto r = archive_read_next_header(m_archive, &entry);
   if (r == ARCHIVE_EOF)
     return false;
   else
     checkError(r);
 
+  archive_entry_set_pathname(entry,
+      (boost::filesystem::path(_root_path) /
+      archive_entry_pathname(entry)).c_str());
   checkError(archive_write_header(a, entry));
   if (archive_entry_size(entry) > 0)
     checkError(copy_data(m_archive, a));
-  archive_write_finish_entry(a);
+
+  return true;
 }
 
 std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
@@ -125,8 +131,6 @@ void ArchiveReader::close()
       archive_read_close(m_archive);
       archive_read_free (m_archive);
     }
-    if (m_entry != NULL)
-      archive_entry_free(m_entry);
 
     m_open = false;
   }
