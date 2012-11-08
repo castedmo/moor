@@ -1,5 +1,4 @@
 #include "archive_reader.hpp"
-#include "memory_reader_callback.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -27,7 +26,8 @@ ArchiveReader::ArchiveReader(std::vector<unsigned char>& _in_buffer)
    , m_archive(archive_read_new()) , m_open(true)
 {
   init();
-  checkError(read_open_memory(m_archive, &m_in_buffer));
+  checkError(archive_read_open_memory(m_archive, &*m_in_buffer.begin()
+    , m_in_buffer.size()), true);
 }
 
 ArchiveReader::ArchiveReader(std::vector<unsigned char>&& _in_buffer)
@@ -35,7 +35,8 @@ ArchiveReader::ArchiveReader(std::vector<unsigned char>&& _in_buffer)
    , m_archive(archive_read_new()), m_open(true)
 {
   init();
-  checkError(read_open_memory(m_archive, &m_in_buffer));
+  checkError(archive_read_open_memory(m_archive, &*m_in_buffer.begin()
+    , m_in_buffer.size()), true);
 }
 
 void ArchiveReader::init()
@@ -129,9 +130,9 @@ std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
     for (;;)
     {
       r = archive_read_data(m_archive, &c, 1);
-      if (r == ARCHIVE_EOF)
+      if (r == 0)
         break;
-      if (r != ARCHIVE_OK)
+      if (r < ARCHIVE_OK)
         checkError (r);
 
       result.second.push_back(c);
@@ -140,7 +141,6 @@ std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
 
   return result;
 }
-
 
 void ArchiveReader::checkError(const int _err_code
   , const bool _close_before_throw)

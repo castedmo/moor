@@ -19,7 +19,7 @@ int main()
   std::list<char> l(10, 'A');
   std::vector<char> v(10, 'B');
 
-  compressor.AddFile("arary", a, a+10);
+  compressor.AddFile("mem_dir/arary", a, a+10);
   compressor.AddFile("list", l.begin(), l.end());
   compressor.AddFile("vector", v.begin(), v.end());
 
@@ -30,10 +30,28 @@ int main()
     of << *a;
   of.close();
 
-  ArchiveReader reader("test2.tar.gz");
-  bool has_data = true;
-  while (has_data)
-      has_data = reader.ExtractNext("extract");
+  ArchiveReader reader1("test2.tar.gz");
+  std::ifstream iff ("test2.tar.gz", std::ios::binary);
+  iff.seekg(0, std::ios::end);
+  auto size = iff.tellg();
+  iff.seekg(0, std::ios::beg);
+  std::vector<unsigned char> ff(size);
+
+  while(iff.good())
+    iff.read((char*)&*ff.begin(), size);
+  ArchiveReader reader(ff);
+  auto data = reader.ExtractNext();
+  while(data.first.length() > 0)
+  {
+    std::cout << data.first << " : " << data.second.size()<< std::endl;
+    data = reader.ExtractNext();
+  }
+  data = reader1.ExtractNext();
+  while(data.first.length() > 0)
+  {
+    std::cout << data.first << " : " << data.second.size()<< std::endl;
+    data = reader1.ExtractNext();
+  }
 
   return 0;
 }
