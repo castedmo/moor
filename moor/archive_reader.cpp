@@ -1,4 +1,5 @@
 #include "archive_reader.hpp"
+#include "memory_reader_callback.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -21,18 +22,20 @@ ArchiveReader::ArchiveReader(const std::string& _archive_file_name)
 
 }
 
-ArchiveReader::ArchiveReader(std::list<unsigned char>& _in_buffer)
-  :m_archive_file_name(""), m_archive(archive_read_new())
-   , m_open(true)
+ArchiveReader::ArchiveReader(std::vector<unsigned char>& _in_buffer)
+  :m_archive_file_name(""), m_in_buffer(_in_buffer)
+   , m_archive(archive_read_new()) , m_open(true)
 {
   init();
+  checkError(read_open_memory(m_archive, &m_in_buffer));
 }
 
-ArchiveReader::ArchiveReader(std::list<unsigned char>&& _in_buffer)
+ArchiveReader::ArchiveReader(std::vector<unsigned char>&& _in_buffer)
   :m_archive_file_name(""), m_in_buffer(std::move(_in_buffer))
    , m_archive(archive_read_new()), m_open(true)
 {
   init();
+  checkError(read_open_memory(m_archive, &m_in_buffer));
 }
 
 void ArchiveReader::init()
@@ -82,7 +85,7 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
 
   struct archive_entry* entry;
   auto r = archive_read_next_header(m_archive, &entry);
-  BOOST_SCOPE_EXIT (&a, &entry)
+  BOOST_SCOPE_EXIT (&a)
   {
     if(a != NULL)
     {
@@ -109,7 +112,33 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
 
 std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
 {
-  return std::pair<std::string, std::list<unsigned char>>();
+  auto result = std::make_pair("", std::list<unsigned char>());
+
+  struct archive_entry* entry;
+  auto r = archive_read_next_header(m_archive, &entry);
+  if (r == ARCHIVE_EOF)
+    return result;
+  else
+    checkError(r);
+
+  result.first = archive_entry_pathname(entry);
+  if (archive_entry_size(entry) > 0)
+  {
+    int r;
+    char c;
+    for (;;)
+    {
+      r = archive_read_data(m_archive, &c, 1);
+      if (r == ARCHIVE_EOF)
+        break;
+      if (r != ARCHIVE_OK)
+        checkError (r);
+
+      result.second.push_back(c);
+    }
+  }
+
+  return result;
 }
 
 

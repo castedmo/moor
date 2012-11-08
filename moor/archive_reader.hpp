@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <list>
+#include <vector>
 #include <utility>
 
 #include "moor_build_config.hpp"
@@ -15,8 +16,8 @@ namespace moor
   {
   public:
     ArchiveReader(const std::string& _archive_file_name);
-    ArchiveReader(std::list<unsigned char>& _in_buffer);
-    ArchiveReader(std::list<unsigned char>&& _in_buffer);
+    ArchiveReader(std::vector<unsigned char>& _in_buffer);
+    ArchiveReader(std::vector<unsigned char>&& _in_buffer);
     ~ArchiveReader();
 
     //returns FALSE at EOF
@@ -33,7 +34,7 @@ namespace moor
     bool m_open;
 
     const std::string m_archive_file_name;
-    std::list<unsigned char> m_in_buffer;
+    std::vector<unsigned char> m_in_buffer;
   };
 }
 
