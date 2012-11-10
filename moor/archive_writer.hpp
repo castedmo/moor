@@ -37,7 +37,7 @@ namespace moor
                    const long long _size = 0, const int _permission = 0644);
     void addHeader(const std::string& _file_path);
     void addContent(const char _byte);
-    void addContent(const char* _bytes, const unsigned int _size);
+    void addContent(const char* _bytes, const unsigned long long _size);
     void addFinish();
 
     bool m_open;

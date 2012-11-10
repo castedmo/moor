@@ -101,9 +101,9 @@ void ArchiveWriter::addContent(const char _byte)
   archive_write_data(m_archive, &_byte, 1);
 }
 
-void ArchiveWriter::addContent(const char* _bytes, const unsigned int _size)
+void ArchiveWriter::addContent(const char* _bytes, const unsigned long long _size)
 {
-  archive_write_data(m_archive, _bytes, 1);
+  archive_write_data(m_archive, _bytes, _size);
 }
 
 void ArchiveWriter::addFinish()
