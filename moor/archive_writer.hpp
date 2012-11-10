@@ -26,6 +26,8 @@ namespace moor
     template <class Iter>
     void AddFile (const std::string& _entry_name, const Iter _entry_contents_begin
         , const Iter _entry_contents_end, long long _size = -1);
+    void AddFile (const std::string& _entry_name, const unsigned char * _data
+      , const unsigned long long _size);
     void AddDirectory(const std::string& _directory_name);
     void Close();
 
@@ -35,6 +37,7 @@ namespace moor
                    const long long _size = 0, const int _permission = 0644);
     void addHeader(const std::string& _file_path);
     void addContent(const char _byte);
+    void addContent(const char* _bytes, const unsigned int _size);
     void addFinish();
 
     bool m_open;

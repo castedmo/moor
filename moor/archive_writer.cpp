@@ -101,6 +101,11 @@ void ArchiveWriter::addContent(const char _byte)
   archive_write_data(m_archive, &_byte, 1);
 }
 
+void ArchiveWriter::addContent(const char* _bytes, const unsigned int _size)
+{
+  archive_write_data(m_archive, _bytes, 1);
+}
+
 void ArchiveWriter::addFinish()
 {
   archive_write_finish_entry(m_archive);
@@ -136,6 +141,13 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
   }
   else
     throw std::runtime_error("Entry file not found.");
+}
+void ArchiveWriter::AddFile (const std::string& _entry_name
+  , const unsigned char * _data , const unsigned long long _size)
+{
+  addHeader(_entry_name, FileType_Regular, _size);
+  addContent((char*)_data, _size);
+  addFinish();
 }
 
 void ArchiveWriter::AddDirectory(const std::string& _directory_name)
