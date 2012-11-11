@@ -15,7 +15,7 @@ namespace moor
   {
   public:
     ArchiveReader(const std::string& _archive_file_name);
-    ArchiveReader(std::vector<unsigned char>& _in_buffer);
+    ArchiveReader(unsigned char*_in_buffer, const size_t _size);
     ArchiveReader(std::vector<unsigned char>&& _in_buffer);
     ~ArchiveReader();
 

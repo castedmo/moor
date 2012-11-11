@@ -39,7 +39,7 @@ int main()
 
   while(iff.good())
     iff.read((char*)&*ff.begin(), size);
-  ArchiveReader reader(ff);
+  ArchiveReader reader(std::move(ff));
   auto data = reader.ExtractNext();
   while(data.first.length() > 0)
   {

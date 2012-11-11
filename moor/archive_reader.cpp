@@ -21,13 +21,11 @@ ArchiveReader::ArchiveReader(const std::string& _archive_file_name)
 
 }
 
-ArchiveReader::ArchiveReader(std::vector<unsigned char>& _in_buffer)
-  :m_archive_file_name(""), m_in_buffer(_in_buffer)
-   , m_archive(archive_read_new()) , m_open(true)
+ArchiveReader::ArchiveReader(unsigned char* _in_buffer, const size_t _size)
+  :m_archive_file_name(""), m_archive(archive_read_new()) , m_open(true)
 {
   init();
-  checkError(archive_read_open_memory(m_archive, &*m_in_buffer.begin()
-    , m_in_buffer.size()), true);
+  checkError(archive_read_open_memory(m_archive, _in_buffer, _size), true);
 }
 
 ArchiveReader::ArchiveReader(std::vector<unsigned char>&& _in_buffer)
