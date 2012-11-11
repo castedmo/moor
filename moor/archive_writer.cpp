@@ -61,7 +61,7 @@ ArchiveWriter::ArchiveWriter(std::list<unsigned char>& _out_buffer
   checkError(write_open_memory(m_archive, &_out_buffer), true);
 }
 
-ArchiveWriter::ArchiveWriter(unsigned char** _out_buffer, size_t* _size
+ArchiveWriter::ArchiveWriter(unsigned char* _out_buffer, size_t* _size
     , const Formats& _format, const Compressions& _compression)
   : m_open(true), m_archive(archive_write_new()), m_entry (archive_entry_new())
   , m_archive_file_name (""), m_format(_format)

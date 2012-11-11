@@ -19,7 +19,7 @@ namespace moor
                   const Compressions& _compression);
     ArchiveWriter(std::list<unsigned char>& _out_buffer, const Formats& _format,
         const Compressions& _compression);
-    ArchiveWriter(unsigned char ** _out_buffer, size_t* _size
+    ArchiveWriter(unsigned char * _out_buffer, size_t* _size
       , const Formats& _format, const Compressions& _compression);
     ~ArchiveWriter();
 
