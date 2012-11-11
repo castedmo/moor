@@ -126,7 +126,6 @@ std::pair<std::string, std::vector<unsigned char>> ArchiveReader::ExtractNext()
   {
     int r;
     size_t read_index = 0;
-    char c;
     result.second.resize(entry_size);
     for (;;)
     {
@@ -138,6 +137,8 @@ std::pair<std::string, std::vector<unsigned char>> ArchiveReader::ExtractNext()
         checkError (r);
 
       read_index += r;
+      if (read_index == entry_size)
+        break;
     }
   }
 
