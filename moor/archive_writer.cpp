@@ -37,7 +37,7 @@ void ArchiveWriter::checkError(const int _err_code
 ArchiveWriter::ArchiveWriter(const std::string& _archive_file_name
     , const Formats& _format, const Compressions& _compression)
   : m_open (true), m_archive (archive_write_new()), m_entry (archive_entry_new())
-  , m_archive_file_name (_archive_file_name), m_out_buffer (NULL)
+  , m_archive_file_name (_archive_file_name)
    , m_format(_format), m_compression(_compression)
 {
   //set archive format
@@ -51,14 +51,28 @@ ArchiveWriter::ArchiveWriter(const std::string& _archive_file_name
 ArchiveWriter::ArchiveWriter(std::list<unsigned char>& _out_buffer
     , const Formats& _format, const Compressions& _compression)
   : m_open(true), m_archive(archive_write_new()), m_entry (archive_entry_new())
-  , m_archive_file_name (""), m_out_buffer (&_out_buffer), m_format(_format)
+  , m_archive_file_name (""), m_format(_format)
   , m_compression(_compression)
 {
   //set archive format
   checkError((format_tab[m_format](m_archive)), true);
   //set archive compression
   checkError((compression_tab[m_compression](m_archive)), true);
-  checkError(write_open_memory(m_archive, m_out_buffer), true);
+  checkError(write_open_memory(m_archive, &_out_buffer), true);
+}
+
+ArchiveWriter::ArchiveWriter(unsigned char** _out_buffer, size_t* _size
+    , const Formats& _format, const Compressions& _compression)
+  : m_open(true), m_archive(archive_write_new()), m_entry (archive_entry_new())
+  , m_archive_file_name (""), m_format(_format)
+  , m_compression(_compression)
+{
+  //set archive format
+  checkError((format_tab[m_format](m_archive)), true);
+  //set archive compression
+  checkError((compression_tab[m_compression](m_archive)), true);
+  checkError(archive_write_open_memory(m_archive, _out_buffer, *_size, _size)
+   , true);
 }
 
 ArchiveWriter::~ArchiveWriter()
