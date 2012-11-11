@@ -111,9 +111,9 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
   return true;
 }
 
-std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
+std::pair<std::string, std::vector<unsigned char>> ArchiveReader::ExtractNext()
 {
-  auto result = std::make_pair(std::string(""), std::list<unsigned char>());
+  auto result = std::make_pair(std::string(""), std::vector<unsigned char>());
 
   struct archive_entry* entry;
   auto r = archive_read_next_header(m_archive, &entry);
@@ -123,19 +123,23 @@ std::pair<std::string, std::list<unsigned char>> ArchiveReader::ExtractNext()
     checkError(r);
 
   result.first = archive_entry_pathname(entry);
-  if (archive_entry_size(entry) > 0)
+  auto entry_size = archive_entry_size(entry);
+  if (entry_size > 0)
   {
     int r;
+    size_t read_index = 0;
     char c;
+    result.second.resize(entry_size);
     for (;;)
     {
-      r = archive_read_data(m_archive, &c, 1);
+      r = archive_read_data(m_archive, &result.second[read_index]
+        , result.second.size() - read_index);
       if (r == 0)
         break;
       if (r < ARCHIVE_OK)
         checkError (r);
 
-      result.second.push_back(c);
+      read_index += r;
     }
   }
 

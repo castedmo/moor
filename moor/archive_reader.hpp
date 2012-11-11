@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <list>
 #include <vector>
 #include <utility>
 
@@ -23,7 +22,7 @@ namespace moor
     //returns FALSE at EOF
     bool ExtractNext (const std::string& _root_path);
     //retuns empty filename at EOF
-    std::pair<std::string, std::list<unsigned char>> ExtractNext();
+    std::pair<std::string, std::vector<unsigned char>> ExtractNext();
 
   private:
     void init();
