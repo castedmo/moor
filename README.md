@@ -8,3 +8,5 @@ This project is a wrapper for
 library.
 
 Supports disk-based and in-memory compression/decompression.
+
+For license information, see the file COPYING.
