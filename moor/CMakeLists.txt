@@ -53,4 +53,4 @@ INSTALL(TARGETS moor moor_static
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 
-INSTALL(FILES ${include_HEADERS} DESTINATION include)
+INSTALL(FILES ${include_HEADERS} DESTINATION include/moor)
