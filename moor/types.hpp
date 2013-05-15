@@ -36,9 +36,10 @@ namespace moor
 
   enum Compressions
   {
-    Compression_gzip = 0,
-    Compression_bzip2 = 1,
-    Compression_lzma = 2
+    Compression_none = 0,
+    Compression_gzip = 1,
+    Compression_bzip2 = 2,
+    Compression_lzma = 3
   };
 
   enum FileTypes
