@@ -115,7 +115,7 @@ void ArchiveWriter::addHeader(const std::string& _entry_name
   checkError(archive_write_header(m_archive, m_entry));
 }
 
-void ArchiveWriter::addHeader(const std::string& _file_path)
+void ArchiveWriter::addHeader(const std::string& _file_path, const std::string& _entry_name)
 {
   struct archive* a = archive_read_disk_new();
   BOOST_SCOPE_EXIT (&a)
@@ -129,7 +129,8 @@ void ArchiveWriter::addHeader(const std::string& _file_path)
   BOOST_SCOPE_EXIT_END
 
   m_entry = archive_entry_clear(m_entry);
-  archive_entry_set_pathname(m_entry, _file_path.c_str());
+  archive_entry_set_pathname(m_entry, _entry_name.c_str());
+  archive_entry_copy_sourcepath(m_entry, _file_path.c_str());
   checkError(archive_read_disk_entry_from_file(a, m_entry, -1, 0));
   checkError(archive_write_header(m_archive, m_entry));
 }
@@ -158,7 +159,7 @@ void ArchiveWriter::AddFile (const std::string& _file_path, const std::string& _
     boost::filesystem::perms perm = file_stat.permissions();
     long long file_size = boost::filesystem::file_size(_file_path);
 
-    addHeader(_entry_name.empty() ? _file_path : _entry_name);
+    addHeader(_file_path, _entry_name.empty() ? _file_path : _entry_name);
 
     if (file_stat.type() == boost::filesystem::regular_file)
     {

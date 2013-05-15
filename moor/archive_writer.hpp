@@ -61,7 +61,7 @@ namespace moor
     void checkError(const int _err_code, const bool _close_before_throw = false);
     void addHeader(const std::string& _entry_name, const FileTypes _entry_type,
                    const long long _size = 0, const int _permission = 0644);
-    void addHeader(const std::string& _file_path);
+    void addHeader(const std::string& _file_path, const std::string& _entry_name="");
     void addContent(const char _byte);
     void addContent(const char* _bytes, const unsigned long long _size);
     void addFinish();
