@@ -47,7 +47,7 @@ namespace moor
       , const Formats& _format, const Compressions& _compression);
     ~ArchiveWriter();
 
-    void AddFile (const std::string& _file_path);
+    void AddFile (const std::string& _file_path, const std::string& _entry_name="");
 
     template <class Iter>
     void AddFile (const std::string& _entry_name, const Iter _entry_contents_begin

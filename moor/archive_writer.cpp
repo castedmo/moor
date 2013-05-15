@@ -149,7 +149,7 @@ void ArchiveWriter::addFinish()
   archive_write_finish_entry(m_archive);
 }
 
-void ArchiveWriter::AddFile (const std::string& _file_path)
+void ArchiveWriter::AddFile (const std::string& _file_path, const std::string& _entry_name)
 {
   if (boost::filesystem::exists(_file_path))
   {
@@ -158,7 +158,7 @@ void ArchiveWriter::AddFile (const std::string& _file_path)
     boost::filesystem::perms perm = file_stat.permissions();
     long long file_size = boost::filesystem::file_size(_file_path);
 
-    addHeader(_file_path);
+    addHeader(_entry_name.empty() ? _file_path : _entry_name);
 
     if (file_stat.type() == boost::filesystem::regular_file)
     {
