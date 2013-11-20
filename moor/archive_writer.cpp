@@ -163,7 +163,7 @@ void ArchiveWriter::AddFile (const std::string& _file_path, const std::string& _
 
     if (file_stat.type() == boost::filesystem::regular_file)
     {
-      std::fstream entry_file(_file_path.c_str(), std::ios::in);
+      std::fstream entry_file(_file_path.c_str(), std::ios::in | std::ios::binary);
       char buff[8192];
       while (entry_file.good())
       {
