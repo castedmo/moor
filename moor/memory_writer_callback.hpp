@@ -26,10 +26,12 @@
 
 #include <list>
 
-#if defined (_WIN64)
-  typedef long long ssize_t;
-#elif defined (_WIN32)
-  typedef long ssize_t;
+#if !defined(__MINGW32__) && !defined(__MINGW64__) && !defined(__CYGWIN__)
+#  if defined (_WIN64)
+     typedef long long ssize_t;
+#  elif defined (_WIN32)
+     typedef long ssize_t;
+#  endif
 #endif
 
 struct archive;
