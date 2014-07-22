@@ -24,12 +24,10 @@
 
 #include "archive_writer.hpp"
 #include "memory_writer_callback.hpp"
+#include "scope_exit.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
-
-#include <boost/filesystem.hpp>
-#include <boost/scope_exit.hpp>
 
 #include <stdexcept>
 #include <fstream>
@@ -121,15 +119,14 @@ void ArchiveWriter::addHeader(const std::string& _entry_name
 void ArchiveWriter::addHeader(const std::string& _file_path, const std::string& _entry_name)
 {
   struct archive* a = archive_read_disk_new();
-  BOOST_SCOPE_EXIT (&a)
+  ScopeExit se([&a]
   {
     if(a != NULL)
     {
       archive_read_close(a);
       archive_read_free(a);
     }
-  }
-  BOOST_SCOPE_EXIT_END
+  });
 
   m_entry = archive_entry_clear(m_entry);
   archive_entry_set_pathname(m_entry, _entry_name.c_str());
@@ -145,7 +142,7 @@ void ArchiveWriter::addContent(const char _byte)
 
 void ArchiveWriter::addContent(const char* _bytes, const unsigned long long _size)
 {
-  archive_write_data(m_archive, _bytes, _size);
+  archive_write_data(m_archive, _bytes, static_cast<size_t>(_size));
 }
 
 void ArchiveWriter::addFinish()
@@ -155,34 +152,37 @@ void ArchiveWriter::addFinish()
 
 void ArchiveWriter::AddFile (const std::string& _file_path, const std::string& _entry_name)
 {
-  if (boost::filesystem::exists(_file_path))
+  struct stat file_stat;
+  if (stat(_file_path.c_str(), &file_stat) < 0)
   {
-    boost::filesystem::file_status file_stat
-      = boost::filesystem::status(_file_path);
-    boost::filesystem::perms perm = file_stat.permissions();
-    long long file_size = boost::filesystem::file_size(_file_path);
-
-    addHeader(_file_path, _entry_name.empty() ? _file_path : _entry_name);
-
-    if (file_stat.type() == boost::filesystem::regular_file)
+    switch (errno)
     {
-      std::fstream entry_file(_file_path.c_str(), std::ios::in | std::ios::binary);
-      char buff[8192];
-      while (entry_file.good())
-      {
-        entry_file.read(buff, 8192);
-        archive_write_data(m_archive, buff
-          , static_cast<size_t>(entry_file.gcount()));
-      }
-      entry_file.close();
+    case ENOENT:
+      throw std::runtime_error("Entry file not found.");
+      break;
+    default:
+      throw std::runtime_error("Entry file is not valid.");
+      break;
     }
-    else
-      throw std::runtime_error("Entry file type not yet supported.");
+  }
+  addHeader(_file_path, _entry_name.empty() ? _file_path : _entry_name);
 
-    addFinish();
+  if (file_stat.st_mode & S_IFREG)
+  {
+    std::fstream entry_file(_file_path.c_str(), std::ios::in | std::ios::binary);
+    char buff[8192];
+    while (entry_file.good())
+    {
+      entry_file.read(buff, 8192);
+      archive_write_data(m_archive, buff
+        , static_cast<size_t>(entry_file.gcount()));
+    }
+    entry_file.close();
   }
   else
-    throw std::runtime_error("Entry file not found.");
+    throw std::runtime_error("Entry file type not yet supported.");
+
+  addFinish();
 }
 void ArchiveWriter::AddFile (const std::string& _entry_name
   , const unsigned char * _data , const unsigned long long _size)

@@ -23,12 +23,11 @@
  */
 
 #include "archive_reader.hpp"
+#include "scope_exit.hpp"
 
 #include <archive.h>
 #include <archive_entry.h>
 #include <stdexcept>
-#include <boost/filesystem.hpp>
-#include <boost/scope_exit.hpp>
 
 using namespace moor;
 
@@ -36,8 +35,19 @@ ArchiveReader::ArchiveReader(const std::string& _archive_file_name)
   :m_archive_file_name(_archive_file_name), m_archive(archive_read_new())
    , m_open(true)
 {
-  if (!boost::filesystem::exists(m_archive_file_name))
-    throw std::runtime_error("Archive file not found.");
+  struct stat file_stat;
+  if (stat(_archive_file_name.c_str(), &file_stat) < 0)
+  {
+    switch (errno)
+    {
+    case ENOENT:
+      throw std::runtime_error("Archive file not found.");
+      break;
+    default:
+      throw std::runtime_error("Archive file is not valid.");
+      break;
+    }
+  }
 
   init();
   checkError(archive_read_open_file(m_archive, m_archive_file_name.c_str()
@@ -108,7 +118,7 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
 
   struct archive_entry* entry;
   auto r = archive_read_next_header(m_archive, &entry);
-  BOOST_SCOPE_EXIT (&a)
+  ScopeExit se([&a]
   {
     if(a != NULL)
     {
@@ -116,16 +126,15 @@ bool ArchiveReader::ExtractNext (const std::string& _root_path)
       archive_write_close(a);
       archive_write_free(a);
     }
-  }
-  BOOST_SCOPE_EXIT_END
+  });
+
   if (r == ARCHIVE_EOF)
     return false;
   else
     checkError(r);
 
   archive_entry_set_pathname(entry,
-      (boost::filesystem::path(_root_path) /
-      archive_entry_pathname(entry)).string().c_str());
+    (_root_path + "/" + archive_entry_pathname(entry)).c_str());
   checkError(archive_write_header(a, entry));
   if (archive_entry_size(entry) > 0)
     checkError(copy_data(m_archive, a));
