@@ -1,6 +1,6 @@
 ADD_EXECUTABLE (test_compress test_compress.cpp)
 
-IF (CMAKE_COMPILER_IS_GNUCXX)
+IF (NOT MSVC)
   ADD_DEFINITIONS (-std=c++0x)
 ELSE()
   ADD_DEFINITIONS(-DMOOR_STATIC)

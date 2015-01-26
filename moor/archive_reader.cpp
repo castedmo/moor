@@ -28,6 +28,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 #include <stdexcept>
+#include <cerrno>
 
 using namespace moor;
 
