@@ -47,4 +47,7 @@ namespace moor
     FileType_Regular = 0,
     FileType_Directory = 1
   };
+
+  const char* const FORMAT_COMPRESSION_7ZIP = "compression";
+  const char* const FORMAT_COMPRESSION_7ZIP_STORE = "store";
 }

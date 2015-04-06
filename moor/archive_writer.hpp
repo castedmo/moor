@@ -39,13 +39,22 @@ namespace moor
   class MOOR_API ArchiveWriter
   {
   public:
+    //deprecated
     ArchiveWriter(const std::string& _archive_file_name, const Formats& _format,
                   const Compressions& _compression);
+    //deprecated
     ArchiveWriter(std::list<unsigned char>& _out_buffer, const Formats& _format,
         const Compressions& _compression);
+    //deprecated
     ArchiveWriter(unsigned char * _out_buffer, size_t* _size
       , const Formats& _format, const Compressions& _compression);
+    ArchiveWriter(const Formats& _format, const Compressions& _compression);
+    void Open(const std::string& _archive_file_name);
+    void Open(std::list<unsigned char>& _out_buffer);
+    void Open(unsigned char * _out_buffer, size_t* _size);
     ~ArchiveWriter();
+
+    void SetFormatOption(const std::string& _option, const std::string& _value);
 
     void AddFile (const std::string& _file_path, const std::string& _entry_name="");
 

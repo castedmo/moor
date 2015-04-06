@@ -100,9 +100,41 @@ ArchiveWriter::ArchiveWriter(unsigned char* _out_buffer, size_t* _size
    , true);
 }
 
+ArchiveWriter::ArchiveWriter(const Formats& _format, const Compressions& _compression)
+  : m_archive(archive_write_new()), m_entry (archive_entry_new())
+  , m_archive_file_name (""), m_format(_format), m_compression(_compression)
+{
+  //set archive format
+  checkError((format_tab[m_format](m_archive)), true);
+  //set archive compression
+  checkError((compression_tab[m_compression](m_archive)), true);
+}
+void ArchiveWriter::Open(const std::string& _archive_file_name)
+{
+  checkError(archive_write_open_filename(m_archive, m_archive_file_name.c_str())
+      , false);
+  m_open = true;
+}
+void ArchiveWriter::Open(std::list<unsigned char>& _out_buffer)
+{
+  checkError(write_open_memory(m_archive, &_out_buffer), false);
+  m_open = true;
+}
+void ArchiveWriter::Open(unsigned char * _out_buffer, size_t* _size)
+{
+  checkError(archive_write_open_memory(m_archive, _out_buffer, *_size, _size)
+   , false);
+  m_open = true;
+}
+
 ArchiveWriter::~ArchiveWriter()
 {
   Close();
+}
+
+void ArchiveWriter::SetFormatOption(const std::string& _option, const std::string& _value)
+{
+  checkError(archive_write_set_format_option(m_archive, NULL, _option.c_str(), _value.c_str()), false);
 }
 
 void ArchiveWriter::addHeader(const std::string& _entry_name
