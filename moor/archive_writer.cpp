@@ -111,7 +111,7 @@ ArchiveWriter::ArchiveWriter(const Formats& _format, const Compressions& _compre
 }
 void ArchiveWriter::Open(const std::string& _archive_file_name)
 {
-  checkError(archive_write_open_filename(m_archive, m_archive_file_name.c_str())
+  checkError(archive_write_open_filename(m_archive, _archive_file_name.c_str())
       , false);
   m_open = true;
 }
