@@ -129,7 +129,12 @@ void ArchiveWriter::Open(unsigned char * _out_buffer, size_t* _size)
 
 ArchiveWriter::~ArchiveWriter()
 {
-  Close();
+  try
+  {
+    Close();
+  }
+  catch (...)
+  {}
 }
 
 void ArchiveWriter::SetFormatOption(const std::string& _option, const std::string& _value)
@@ -179,7 +184,7 @@ void ArchiveWriter::addContent(const char* _bytes, const unsigned long long _siz
 
 void ArchiveWriter::addFinish()
 {
-  archive_write_finish_entry(m_archive);
+  checkError(archive_write_finish_entry(m_archive), false);
 }
 
 void ArchiveWriter::AddFile (const std::string& _file_path, const std::string& _entry_name)
@@ -236,8 +241,8 @@ void ArchiveWriter::Close()
   {
     if (m_archive != NULL)
     {
-      archive_write_close(m_archive);
-      archive_write_free (m_archive);
+      checkError(archive_write_close(m_archive));
+      checkError(archive_write_free(m_archive));
     }
     if (m_entry != NULL)
       archive_entry_free(m_entry);
